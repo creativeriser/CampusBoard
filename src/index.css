@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-canvas: 247 248 250;
+    --color-surface: 255 255 255;
+    --color-border: 230 232 236;
+    --color-ink-950: 14 16 20;
+    --color-ink-900: 20 22 26;
+    --color-ink-700: 54 58 68;
+    --color-ink-600: 86 91 102;
+    --color-ink-400: 148 152 163;
+    --color-ink-200: 214 217 223;
+    
+    --color-moss-100: 227 240 236;
+    --color-moss-300: 155 201 184;
+    --color-moss-500: 46 138 108;
+    --color-moss-600: 27 111 92;
+    --color-moss-700: 21 87 71;
+
+    --color-brand-100: var(--color-moss-100);
+    --color-brand-300: var(--color-moss-300);
+    --color-brand-500: var(--color-moss-500);
+    --color-brand-600: var(--color-moss-600);
+    --color-brand-700: var(--color-moss-700);
+  }
+
+  .dark {
+    --color-canvas: 9 9 11;
+    --color-surface: 24 24 27;
+    --color-border: 39 39 42;
+    
+    --color-ink-950: 255 255 255;
+    --color-ink-900: 250 250 250;
+    --color-ink-700: 161 161 170;
+    --color-ink-600: 113 113 122;
+    --color-ink-400: 63 63 70;
+    --color-ink-200: 39 39 42;
+
+    --color-moss-100: 6 35 24;
+    --color-moss-300: 16 185 129;
+    --color-moss-500: 52 211 153;
+    --color-moss-600: 110 231 183;
+    --color-moss-700: 167 243 208;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  /* Light Mode Autofill */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover, 
+  input:-webkit-autofill:focus, 
+  input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
+    -webkit-text-fill-color: #14161a !important;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+
+  /* Dark Mode Autofill */
+  .dark input:-webkit-autofill,
+  .dark input:-webkit-autofill:hover, 
+  .dark input:-webkit-autofill:focus, 
+  .dark input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #09090b inset !important;
+    -webkit-text-fill-color: white !important;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    color-scheme: light;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color 0.4s ease, color 0.4s ease;
+  }
+
+  body {
+    @apply bg-canvas text-ink-900 font-sans antialiased;
+    transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
+  }
+
+  ::selection {
+    @apply bg-brand-500/20 text-brand-600 dark:bg-brand-500/30 dark:text-brand-300;
+  }
+
+  :focus-visible {
+    outline: 2px solid theme('colors.brand.500');
+    outline-offset: 2px;
+    border-radius: inherit;
+  }
+}
