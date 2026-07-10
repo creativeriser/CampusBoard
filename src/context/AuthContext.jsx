@@ -62,18 +62,19 @@ export function AuthProvider({ children }) {
 
     if (!error && data) {
       // AUTO-HEALER: Fix bad legacy data seamlessly
-      if (data.full_name === 'Campus Member') {
-        const healedName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Member'
+      if (!data.full_name || data.full_name.trim() === '' || data.full_name === 'Campus Member' || data.full_name === 'Member') {
+        const healedName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'Member'
         data.full_name = healedName
         supabase.from('profiles').update({ full_name: healedName }).eq('id', user.id).then()
       }
       finalProfile = data
     } else if (error && error.code === 'PGRST116') {
+      const healedName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'Member'
       const { data: newProfile, error: insertError } = await supabase
         .from('profiles')
         .insert({ 
           id: user.id, 
-          full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Member',
+          full_name: healedName,
           role: 'member'
         })
         .select('*')
