@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { ThemeProvider } from './lib/ThemeContext'
 import ProtectedRoute from './routes/ProtectedRoute'
+import AuthLayout from './routes/AuthLayout'
+import CommandPalette from './components/CommandPalette'
 import { Toaster } from 'sonner'
 
 import Login from './pages/Login'
@@ -15,26 +17,29 @@ export default function App() {
       <Toaster position="bottom-right" richColors theme="system" />
       <AuthProvider>
       <BrowserRouter>
+        <CommandPalette />
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
+          <Route element={<AuthLayout />}>
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+          </Route>
         </Routes>
       </BrowserRouter>
     </AuthProvider>
