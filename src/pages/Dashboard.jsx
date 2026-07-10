@@ -35,7 +35,7 @@ export default function Dashboard() {
           {loading ? (
             <div className="flex flex-col gap-4">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="rounded-2xl border border-white/5 bg-white/20 dark:bg-black/10 backdrop-blur-xl p-5 md:p-6 shadow-sm animate-pulse flex flex-col gap-4">
+                <div key={i} className="glass-panel rounded-2xl p-5 md:p-6 animate-pulse flex flex-col gap-4">
                   <div className="flex items-center gap-3">
                     <div className="h-8 w-8 rounded-full bg-black/5 dark:bg-white/5"></div>
                     <div className="flex flex-col gap-2">
