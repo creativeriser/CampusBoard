@@ -88,6 +88,14 @@ src/
 - **Purpose:** Displays a single feed item.
 - **Design:** Highly subtle borders (`border-border/40 dark:border-white/5`), minimal background opacity, and utilizes the `<Badge />` component for audience tags, priority, and pins.
 
+#### `AccountSwitcher.jsx`
+- **Purpose:** Replaces the static profile/logout button in the Navbar with a full Multi-Account popover.
+- **Design:** Uses `.glass-dropdown` for elevation and `.list-item-hover` for interactive list items.
+
+#### `CommandPalette.jsx`
+- **Purpose:** Global `Cmd+K` keyboard modal for instant navigation, theme toggling, account switching, and realtime database searches.
+- **Design:** Blurs the entire background and floats in the center using `.glass-dropdown`.
+
 #### `AvatarUpload.jsx`
 - **Purpose:** Handles direct-to-Supabase profile image uploads using the `avatars` storage bucket.
 
@@ -115,16 +123,19 @@ To achieve our signature floating UI, combine:
 2. `backdrop-blur-xl` or `backdrop-blur-md`
 3. `border border-border/60 dark:border-white/10`
 
+*(Note: Use the global `.glass-panel` and `.glass-dropdown` utility classes in `index.css` to automatically apply these base styles to any new modals or containers).*
+
 ---
 
 ## 6. UI Consistency Rules (Phase 2 Refined)
 
 - **Unified Tags:** All tags, markers, and statuses must use the `<Badge />` component. Never write custom `<span>` elements for tags.
-- **Glassmorphism Standard:** When creating a new card, it must use the glassmorphism system. Crucially, enforce **Responsive Padding**: all main cards must use `p-5 md:p-6` to ensure vertical rhythm is completely unified on desktop.
+- **Glassmorphism Standard:** When creating a new card, use `.glass-panel` or `.glass-dropdown`. Crucially, enforce **Responsive Padding**: all main cards must use `p-5 md:p-6` to ensure vertical rhythm is completely unified on desktop.
 - **Global Layout Wrapper:** The content must be wrapped in a `max-w-3xl mx-auto px-4 md:px-8` container to maintain elegant line-reading lengths.
 - **Header Anchoring:** Any standalone page headers (e.g. Auth navbars) must include `pt-4` padding to perfectly match the internal app Navbar, preventing vertical "jumping" on route changes.
 - **Interactive Component Sizing:** The standard `<Button size="md" />` must always be `h-10` to perfectly align with the `h-10` standard of `<Input />` fields when placed side-by-side.
 - **Focus Rings:** All interactive elements (buttons, links) must utilize our global unified focus ring: `focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface`. 
+- **List Item Hover:** Any lists, dropdown options, or command palette rows must use the `.list-item-hover` class to ensure consistent `active:scale-95` micro-interactions.
 - **Empty States:** Absolutely no emojis. Use a high-quality monochromatic `lucide-react` icon inside a subtle circular background (`bg-ink-900/5 dark:bg-white/5`), followed by a `font-sans` title and `ink-400` subtitle.
 
 ---
@@ -151,8 +162,11 @@ To achieve our signature floating UI, combine:
 Never write `useEffect` and `supabase` calls inside a UI component for core data. 
 **Pattern:** Create a hook (e.g., `useNotices.js`) that handles `loading`, `error`, and `data` states. The UI component imports this hook and simply renders the states.
 
-### 2. Intelligent Auth Fallbacks (`AuthContext.jsx`)
-If a user creates an account but `user_metadata.full_name` is missing, `AuthContext` will intelligently fallback to extracting the prefix from their email address (`user.email.split('@')[0]`) during Profile creation, avoiding hardcoded generic strings.
+### 2. Multi-Account Authentication (`AuthContext.jsx`)
+`AuthContext` natively supports **Multi-Account Session Pooling**. 
+- Valid login sessions (including `access_token` and profile data) are intercepted and stored in the `campusboard-accounts` array inside `localStorage`.
+- The `switchAccount(userId)` method instantly injects a saved token back into `supabase.auth.setSession()`, allowing instant hot-swapping between accounts without page reloads.
+- **Auto-Healer:** If a user creates an account but `user_metadata.full_name` is missing, `AuthContext` intelligently extracts the prefix from their email address (`user.email.split('@')[0]`) to avoid ugly blank strings.
 
 ### 3. Non-blocking Auth & Protected Route Pattern
 Use `ProtectedRoute.jsx` to wrap any route in `App.jsx` that requires authentication. It automatically checks the `AuthContext` and redirects to `/login` if no user exists.
