@@ -15,7 +15,7 @@ Welcome to the definitive engineering and design handbook for CampusBoard. This 
 - **Animations:** Framer Motion
 - **Icons:** Lucide React
 - **Notifications/Toasts:** Sonner
-- **Backend as a Service (BaaS):** Supabase (Auth, Postgres, Realtime)
+- **Backend as a Service (BaaS):** Supabase (Auth, Postgres, Realtime, Storage)
 
 **Architecture Strategy:** 
 The app is built as a Single Page Application (SPA). It uses a Context API (`AuthContext`, `ThemeContext`) for global state, and custom React Hooks (`useNotices`, `useNotifications`) to encapsulate data fetching and Supabase Realtime subscriptions.
@@ -27,7 +27,7 @@ The app is built as a Single Page Application (SPA). It uses a Context API (`Aut
 ```text
 src/
 ├── components/     # Reusable UI blocks
-│   └── ui/         # Atomic design system components (buttons, inputs)
+│   └── ui/         # Atomic design system components (buttons, inputs, badges)
 ├── context/        # Global state providers (React Context)
 ├── hooks/          # Custom React hooks containing business logic
 ├── lib/            # Utility libraries and third-party wrappers
@@ -36,8 +36,8 @@ src/
 └── utils/          # Pure helper functions
 ```
 
-- **`components/`**: Place domain-specific reusable blocks here (e.g., `NoticeCard`). Do *not* place entire pages here.
-- **`components/ui/`**: Place "dumb" atomic components here (e.g., `Button`). They should never fetch data or know about business logic.
+- **`components/`**: Place domain-specific reusable blocks here (e.g., `NoticeCard`, `AvatarUpload`). Do *not* place entire pages here.
+- **`components/ui/`**: Place "dumb" atomic components here (e.g., `Button`, `Badge`). They should never fetch data or know about business logic.
 - **`hooks/`**: All Supabase data fetching and state manipulation must live here. Never put `supabase.from(...)` directly inside a UI component.
 - **`pages/`**: Only top-level components mapped directly in React Router belong here.
 - **`utils/`**: Place pure, stateless javascript functions here (e.g., date formatting).
@@ -48,7 +48,7 @@ src/
 
 ### Core Configuration
 - **`tailwind.config.js`**: Extends the default theme to include our custom `ink`, `surface`, and `brand` color scales, Fraunces typography, and custom `fade-up` animations. 
-- **`src/index.css`**: The heart of the CSS system. Uses CSS variables (`--color-surface`) to enable a seamless, inverted dark mode. Also contains overrides for annoying browser defaults (like `-webkit-autofill`).
+- **`src/index.css`**: The heart of the CSS system. Uses CSS variables (`--color-surface`) to enable a seamless, semantic dark mode. Also contains overrides for annoying browser defaults (like `-webkit-autofill`).
 - **`src/supabaseClient.js`**: Initializes and exports the single singleton instance of the Supabase client.
 
 ### Core Application
@@ -61,28 +61,35 @@ src/
 
 ### Atomic Components (`src/components/ui/`)
 
+#### `Badge.jsx` (The Unified Tag System)
+- **Purpose:** Single source of truth for all tags, roles, and pill-shaped markers.
+- **Styling:** Enforces a strict pill shape (`rounded-full`), `text-[11px]`, `uppercase`, `font-bold`, `tracking-wider`, and `backdrop-blur-md`. 
+- **Usage:** Takes a `variant` prop (`brand`, `red`, `indigo`, `emerald`, `blue`, `default`) to semantically color the badge. 
+
 #### `Button.jsx`
 - **Purpose:** The standard interactive trigger.
-- **Styling:** Uses a scale effect on active (`active:scale-[0.98]`), rounded corners (`rounded-xl`), and smooth transition colors.
-- **Variants:** Primary (brand background) and Ghost/Outline variants.
+- **Styling:** Uses a scale effect on active (`active:scale-[0.98]`), rounded corners (`rounded`), and smooth transition colors.
+- **Variants:** Primary (brand background), Ghost/Outline variants, Danger (red).
 
 #### `Input.jsx` (Includes `Input` and `Textarea`)
 - **Purpose:** Form inputs.
-- **Styling:** Borderless by default inside forms, using a subtle `placeholder:text-ink-400` strategy.
+- **Styling:** Borderless inside forms or subtly bordered in standalone areas, using `placeholder:text-ink-400` globally.
 
 ### Domain Components (`src/components/`)
 
+#### `RoleBadge.jsx`
+- **Purpose:** Wraps the atomic `<Badge />` component to automatically assign the correct color variant based on the user's string role (e.g., mapping `admin` to the `brand` variant).
+
 #### `NoticeForm.jsx`
 - **Purpose:** The composer block for submitting announcements.
-- **Design:** A single, seamless frosted-glass pane (`backdrop-blur-xl`) with native inputs floating inside. No nested borders.
+- **Design:** A single, seamless frosted-glass pane (`backdrop-blur-xl`) with native inputs floating inside. 
 
 #### `NoticeCard.jsx`
 - **Purpose:** Displays a single feed item.
-- **Design:** Highly subtle borders (`border-white/10`), minimal background opacity, and a hover effect that slightly lifts the card and reveals the delete action (for owners only).
+- **Design:** Highly subtle borders (`border-border/40 dark:border-white/5`), minimal background opacity, and utilizes the `<Badge />` component for audience tags, priority, and pins.
 
-#### `NotificationBell.jsx`
-- **Purpose:** Top-nav indicator for unread messages.
-- **Design:** Uses `framer-motion` to mount/unmount a sleek, absolute-positioned popover menu.
+#### `AvatarUpload.jsx`
+- **Purpose:** Handles direct-to-Supabase profile image uploads using the `avatars` storage bucket.
 
 ---
 
@@ -92,30 +99,33 @@ src/
 > Do not use raw Tailwind colors (e.g., `bg-gray-800`). You must use the semantic tokens defined below to ensure Dark Mode works automatically.
 
 ### Typography
-- **Display (`font-display`):** Fraunces/Georgia. Used strictly for large Page Titles (e.g., "Welcome back", "Notice Board") and the Logo.
-- **Sans (`font-sans`):** Inter. Used for everything else (body text, buttons, inputs).
+- **Display (`font-display`):** Fraunces/Georgia. Used strictly for Auth/Landing Page Titles (e.g., "Welcome back", "Your Campus"). **Do not use this on data-heavy dashboards.**
+- **Sans (`font-sans`):** Inter. The core application font. Used for everything on the Dashboard (headers, body text, buttons, inputs) to maintain a strict, professional SaaS aesthetic.
 
 ### Colors (Semantic Scale)
 - **`canvas`**: The absolute background of the application (very light grey in light mode, near-black in dark mode).
 - **`surface`**: Elements resting *on* the canvas (e.g., cards, popovers).
 - **`border`**: Faint lines to separate elements.
-- **`ink-950` to `ink-200`**: Text hierarchy. Use `ink-900` for primary text, `ink-700` for secondary, and `ink-400` for placeholders/meta.
-- **`brand-500`**: The primary action color (Moss Green).
+- **`ink-900` to `ink-200`**: Semantic Text hierarchy. 
+  - *Note on Dark Mode:* The `.dark` scale in `index.css` is strictly semantic, NOT mathematically inverted. This ensures `ink-400` remains a legible medium-gray (`#71717A`) against dark backgrounds.
 
 ### Glassmorphism System
 To achieve our signature floating UI, combine:
 1. `bg-white/40 dark:bg-black/20`
-2. `backdrop-blur-xl`
-3. `border border-white/10 dark:border-white/5`
+2. `backdrop-blur-xl` or `backdrop-blur-md`
+3. `border border-border/60 dark:border-white/10`
 
 ---
 
-## 6. UI Consistency Rules
+## 6. UI Consistency Rules (Phase 2 Refined)
 
-- **When creating a new card:** It must use the glassmorphism system above. Do not use solid `bg-white` or `bg-gray-800`.
-- **When creating a new page:** The content must be wrapped in a `max-w-3xl mx-auto` container to maintain elegant line-reading lengths.
-- **When adding buttons:** Primary buttons must use the semantic `brand` color. Secondary actions should use `text-ink-700 hover:text-ink-900`.
-- **When creating empty states:** Do not use dashed borders. Use a single icon floating above a subtle, small circular background, followed by a `font-display` title and `ink-500` subtitle.
+- **Unified Tags:** All tags, markers, and statuses must use the `<Badge />` component. Never write custom `<span>` elements for tags.
+- **Glassmorphism Standard:** When creating a new card, it must use the glassmorphism system. Crucially, enforce **Responsive Padding**: all main cards must use `p-5 md:p-6` to ensure vertical rhythm is completely unified on desktop.
+- **Global Layout Wrapper:** The content must be wrapped in a `max-w-3xl mx-auto px-4 md:px-8` container to maintain elegant line-reading lengths.
+- **Header Anchoring:** Any standalone page headers (e.g. Auth navbars) must include `pt-4` padding to perfectly match the internal app Navbar, preventing vertical "jumping" on route changes.
+- **Interactive Component Sizing:** The standard `<Button size="md" />` must always be `h-10` to perfectly align with the `h-10` standard of `<Input />` fields when placed side-by-side.
+- **Focus Rings:** All interactive elements (buttons, links) must utilize our global unified focus ring: `focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface`. 
+- **Empty States:** Absolutely no emojis. Use a high-quality monochromatic `lucide-react` icon inside a subtle circular background (`bg-ink-900/5 dark:bg-white/5`), followed by a `font-sans` title and `ink-400` subtitle.
 
 ---
 
@@ -124,26 +134,31 @@ To achieve our signature floating UI, combine:
 | Token | Tailwind Class | Usage |
 |-------|---------------|-------|
 | Primary Text | `text-ink-900` | Headings, core body text |
-| Subdued Text | `text-ink-600` | Subtitles, helper text |
-| Meta Text | `text-ink-400` | Timestamps, placeholders |
+| Subdued Text | `text-ink-600` | Subtitles, disabled inputs |
+| Meta Text | `text-ink-400` | Timestamps, placeholders, empty states |
 | Brand Color | `text-brand-500` | Links, primary icons |
 | Page Background | `bg-canvas` | `<body>` or root `main` div |
 | Card Radius | `rounded-2xl` | Large containers, composer, cards |
-| Input Radius | `rounded-xl` | Buttons, standalone inputs |
+| Input Radius | `rounded` | Buttons, standalone inputs |
+| Focus Ring | `focus-visible:ring-brand-500` | Applied globally with `ring-2` and `ring-offset-2` |
+| Glass Padding | `p-5 md:p-6` | Standard internal padding for all glassmorphism cards |
 
 ---
 
 ## 8. Reusable Patterns
 
 ### 1. The Custom Hook API Pattern
-Never write `useEffect` and `supabase` calls inside a UI component. 
+Never write `useEffect` and `supabase` calls inside a UI component for core data. 
 **Pattern:** Create a hook (e.g., `useNotices.js`) that handles `loading`, `error`, and `data` states. The UI component imports this hook and simply renders the states.
 
-### 2. The Protected Route Pattern
+### 2. Intelligent Auth Fallbacks (`AuthContext.jsx`)
+If a user creates an account but `user_metadata.full_name` is missing, `AuthContext` will intelligently fallback to extracting the prefix from their email address (`user.email.split('@')[0]`) during Profile creation, avoiding hardcoded generic strings.
+
+### 3. Non-blocking Auth & Protected Route Pattern
 Use `ProtectedRoute.jsx` to wrap any route in `App.jsx` that requires authentication. It automatically checks the `AuthContext` and redirects to `/login` if no user exists.
 
-### 3. The Realtime Subscription Pattern
-Use `useRealtimeNotices.js` to listen for database `INSERT` or `DELETE` payloads, and update the React state instantly without requiring a page reload.
+### 4. The Relational Realtime Subscription Pattern
+Use `useRealtimeNotices.js` to listen for database `INSERT` or `DELETE` payloads. When an `INSERT` occurs, perform an immediate secondary fetch to grab the joined relational data (like the author's Profile) before updating the React state, ensuring the feed stays live and fully attributed.
 
 ---
 
@@ -163,60 +178,189 @@ Use `useRealtimeNotices.js` to listen for database `INSERT` or `DELETE` payloads
    - Components
    - Utils
 2. **File Naming:** React components use `PascalCase.jsx`. Hooks use `camelCase.js`. Utils use `camelCase.js`.
-3. **Exports:** Always use `export default function ComponentName() {}` for main components (avoid arrow functions for default exports to improve React DevTools naming).
+3. **Exports:** Always use `export function ComponentName() {}` for main components.
 
 ---
 
-## 11. Future Development Guide
+## 11. Supabase Setup & Full Reset Schema
 
-**If you add a new "Events" module:**
-1. Create `src/hooks/useEvents.js`.
-2. Create `src/components/EventCard.jsx` (mirroring `NoticeCard`).
-3. Create `src/pages/Events.jsx`.
-4. Wrap `Events` in `<ProtectedRoute>` in `App.jsx`.
+If you are setting up this project from scratch, or need to perform a **full database reset**, use the SQL script below. It safely drops tables, recreates the schema, configures storage buckets, and establishes Realtime publications.
 
-**If you build another form:**
-1. Wrap it in the standard `rounded-2xl backdrop-blur-xl bg-white/40 dark:bg-black/20` container.
-2. Use raw, unbordered `<input className="bg-transparent">` elements inside it.
-3. Separate inputs with a `1px bg-border/40` divider line.
-
----
-
-## 12. UI/UX Best Practices
-
-- **Where we excel:** The ultra-minimalist, borderless forms and the completely automated light/dark mode inversion.
-- **Where we must be careful:** As we add more features, the UI can easily become cluttered. Always default to hiding secondary actions (like "Delete") behind a CSS hover state (`opacity-0 group-hover:opacity-100`) rather than cluttering the screen with icons.
-
----
-
-## 13. Project Style Guide
-
-### Do's
-- **DO** use `lucide-react` for all icons.
-- **DO** use `framer-motion` for mounting/unmounting dropdowns and modals.
-- **DO** rely on spacing (`gap`, `mt`, `mb`) rather than hard lines to separate content.
-
-### Don'ts
-- **DON'T** use `box-shadow` aggressively. Rely on the `backdrop-blur` for depth.
-- **DON'T** use the `style={{}}` prop inline. Use Tailwind classes.
-- **DON'T** use alerts or `window.confirm()`. Use the `sonner` toast library for feedback.
-
----
-
-## 14. Future AI Reference
-
-```json
-{
-  "project": "CampusBoard",
-  "framework": "React+Vite",
-  "css": "Tailwind",
-  "design_language": "Glassmorphism, Minimalist, High-Contrast Dark Mode",
-  "rules": [
-    "Never use hard borders on containers; use border-white/10.",
-    "Use font-display for headers, font-sans for body.",
-    "Data fetching logic MUST live in custom hooks in /src/hooks.",
-    "Do not use generic colors (e.g. gray-800); use the semantic 'ink', 'surface', and 'brand' scales."
-  ]
-}
+### 1. Environment Variables
+Create a `.env.local` file in the root directory:
 ```
+VITE_SUPABASE_URL=https://your-project-ref.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-public-key
+```
+
+### 2. Full SQL Schema (Drop & Recreate)
+Run the following SQL in the Supabase SQL Editor. 
+> [!WARNING]
+> This drops all tables in the public schema and destroys existing data (excluding `auth.users`).
+
+```sql
+-- CampusBoard Full Reset & Schema Script
+
+-------------------------------------------------
+-- 0. DANGER ZONE: DROP EXISTING TABLES
+-------------------------------------------------
+drop table if exists notifications cascade;
+drop table if exists replies cascade;
+drop table if exists notices cascade;
+drop table if exists profiles cascade;
+
+-------------------------------------------------
+-- 1. PROFILES TABLE
+-------------------------------------------------
+create table profiles (
+  id uuid references auth.users on delete cascade primary key,
+  full_name text,
+  avatar_url text,
+  bio text,
+  role text default 'member',
+  updated_at timestamp default now()
+);
+
+alter table profiles enable row level security;
+create policy "Profiles are viewable by everyone" on profiles for select using (true);
+create policy "Users can insert their own profile" on profiles for insert with check (auth.uid() = id);
+create policy "Users can update their own profile" on profiles for update using (auth.uid() = id);
+
+-------------------------------------------------
+-- 2. NOTICES TABLE
+-------------------------------------------------
+create table notices (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references public.profiles on delete cascade,
+  title text not null,
+  content text,
+  priority text default 'normal',
+  is_pinned boolean default false,
+  audience text[] default '{}',
+  department text,
+  status text default 'published',
+  created_at timestamp default now()
+);
+
+alter table notices enable row level security;
+create policy "Notices are viewable by everyone" on notices for select using (true);
+create policy "Users can insert their own notices" on notices for insert with check (auth.uid() = user_id);
+create policy "Users or Admins can update notices" on notices for update using (
+  auth.uid() = user_id or exists (select 1 from profiles where profiles.id = auth.uid() and profiles.role = 'admin')
+);
+create policy "Users or Admins can delete notices" on notices for delete using (
+  auth.uid() = user_id or exists (select 1 from profiles where profiles.id = auth.uid() and profiles.role = 'admin')
+);
+
+-------------------------------------------------
+-- 3. REPLIES TABLE
+-------------------------------------------------
+create table replies (
+  id uuid default gen_random_uuid() primary key,
+  notice_id uuid references notices on delete cascade,
+  user_id uuid references profiles on delete cascade,
+  message text not null,
+  created_at timestamp default now()
+);
+
+alter table replies enable row level security;
+create policy "Replies viewable by everyone" on replies for select using (true);
+create policy "Users can insert own replies" on replies for insert with check (auth.uid() = user_id);
+create policy "Users can delete own replies" on replies for delete using (auth.uid() = user_id);
+create policy "Admins can delete any reply" on replies for delete using (
+  exists (select 1 from profiles where profiles.id = auth.uid() and profiles.role = 'admin')
+);
+
+-------------------------------------------------
+-- 4. NOTIFICATIONS TABLE
+-------------------------------------------------
+create table notifications (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users on delete cascade,
+  message text not null,
+  is_read boolean default false,
+  created_at timestamp default now()
+);
+
+alter table notifications enable row level security;
+create policy "Users can view their own notifications" on notifications for select using (auth.uid() = user_id);
+create policy "Users can insert their own notifications" on notifications for insert with check (auth.uid() = user_id);
+create policy "Users can update their own notifications" on notifications for update using (auth.uid() = user_id);
+
+-------------------------------------------------
+-- 5. NOTIFICATION TRIGGER
+-------------------------------------------------
+create or replace function notify_all_users_on_new_notice()
+returns trigger
+language plpgsql
+security definer
+as $$
+begin
+  insert into notifications (user_id, message)
+  select id, 'New notice posted: "' || new.title || '"'
+  from auth.users
+  where id != new.user_id;
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_notify_all_users_on_new_notice on notices;
+create trigger trg_notify_all_users_on_new_notice
+after insert on notices
+for each row
+execute function notify_all_users_on_new_notice();
+
+-------------------------------------------------
+-- 6. REALTIME CONFIGURATION
+-------------------------------------------------
+-- We use a DO block to safely add to publication only if they don't already exist
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' AND tablename = 'notices'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE notices;
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' AND tablename = 'replies'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE replies;
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' AND tablename = 'notifications'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE notifications;
+  END IF;
+END $$;
+
+-------------------------------------------------
+-- 7. STORAGE BUCKET (AVATARS)
+-------------------------------------------------
+insert into storage.buckets (id, name, public) 
+values ('avatars', 'avatars', true)
+on conflict (id) do nothing;
+
+drop policy if exists "Avatar images are publicly accessible" on storage.objects;
+drop policy if exists "Users can upload their own avatar" on storage.objects;
+drop policy if exists "Users can update their own avatar" on storage.objects;
+
+create policy "Avatar images are publicly accessible"
+  on storage.objects for select using (bucket_id = 'avatars');
+
+create policy "Users can upload their own avatar"
+  on storage.objects for insert with check (
+    bucket_id = 'avatars' and auth.uid()::text = (storage.foldername(name))[1]
+  );
+
+create policy "Users can update their own avatar"
+  on storage.objects for update using (
+    bucket_id = 'avatars' and auth.uid()::text = (storage.foldername(name))[1]
+  );
+```
+
 *End of Document. Refer to this handbook before making architectural decisions.*
