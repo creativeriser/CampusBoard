@@ -89,12 +89,12 @@ src/
 - **Design:** Highly subtle borders (`border-border/40 dark:border-white/5`), minimal background opacity, and utilizes the `<Badge />` component for audience tags, priority, and pins.
 
 #### `AccountSwitcher.jsx`
-- **Purpose:** Replaces the static profile/logout button in the Navbar with a full Multi-Account popover.
+- **Purpose:** Replaces the static profile/logout button in the Navbar with a full Multi-Account popover, allowing users to hot-swap stored sessions or sign out completely.
 - **Design:** Uses `.glass-dropdown` for elevation and `.list-item-hover` for interactive list items.
 
 #### `CommandPalette.jsx`
 - **Purpose:** Global `Cmd+K` keyboard modal for instant navigation, theme toggling, account switching, and realtime database searches.
-- **Design:** Blurs the entire background and floats in the center using `.glass-dropdown`.
+- **Design:** Blurs the entire background and floats in the center using `.glass-dropdown`. Implements sophisticated keydown listeners for keyboard-only navigation.
 
 #### `AvatarUpload.jsx`
 - **Purpose:** Handles direct-to-Supabase profile image uploads using the `avatars` storage bucket.
@@ -127,15 +127,15 @@ To achieve our signature floating UI, combine:
 
 ---
 
-## 6. UI Consistency Rules (Phase 2 Refined)
+## 6. UI Consistency Rules (Phase 4 Refined)
 
 - **Unified Tags:** All tags, markers, and statuses must use the `<Badge />` component. Never write custom `<span>` elements for tags.
-- **Glassmorphism Standard:** When creating a new card, use `.glass-panel` or `.glass-dropdown`. Crucially, enforce **Responsive Padding**: all main cards must use `p-5 md:p-6` to ensure vertical rhythm is completely unified on desktop.
-- **Global Layout Wrapper:** The content must be wrapped in a `max-w-3xl mx-auto px-4 md:px-8` container to maintain elegant line-reading lengths.
-- **Header Anchoring:** Any standalone page headers (e.g. Auth navbars) must include `pt-4` padding to perfectly match the internal app Navbar, preventing vertical "jumping" on route changes.
+- **Glassmorphism Standard:** Every card and panel MUST use `.glass-panel` or `.glass-dropdown` rather than hardcoded Tailwind strings. Crucially, enforce **Responsive Padding**: all main cards must use `p-5 md:p-6` to ensure vertical rhythm is completely unified on desktop.
+- **Divider Unification:** All horizontal or vertical subtle dividing lines must use `border-border/50` for exact opacity alignment across the app.
+- **Global Layout Wrapper:** The authenticated content must be wrapped in `AuthLayout.jsx` or similar, using a `max-w-3xl mx-auto px-4 md:px-8` container to maintain elegant line-reading lengths.
 - **Interactive Component Sizing:** The standard `<Button size="md" />` must always be `h-10` to perfectly align with the `h-10` standard of `<Input />` fields when placed side-by-side.
 - **Focus Rings:** All interactive elements (buttons, links) must utilize our global unified focus ring: `focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface`. 
-- **List Item Hover:** Any lists, dropdown options, or command palette rows must use the `.list-item-hover` class to ensure consistent `active:scale-95` micro-interactions.
+- **List Item Hover:** Any lists, dropdown options, or command palette rows must use the `.list-item-hover` class to ensure consistent `active:scale-95` micro-interactions and dark/light hover contrasts.
 - **Empty States:** Absolutely no emojis. Use a high-quality monochromatic `lucide-react` icon inside a subtle circular background (`bg-ink-900/5 dark:bg-white/5`), followed by a `font-sans` title and `ink-400` subtitle.
 
 ---
@@ -153,6 +153,8 @@ To achieve our signature floating UI, combine:
 | Input Radius | `rounded` | Buttons, standalone inputs |
 | Focus Ring | `focus-visible:ring-brand-500` | Applied globally with `ring-2` and `ring-offset-2` |
 | Glass Padding | `p-5 md:p-6` | Standard internal padding for all glassmorphism cards |
+| Glass Panel | `.glass-panel` | Unified token for all main cards (`bg-white/40 border-white/10 backdrop-blur-xl`) |
+| Dividers | `border-border/50` | Standard opacity for all internal horizontal/vertical dividing lines |
 
 ---
 
@@ -162,17 +164,18 @@ To achieve our signature floating UI, combine:
 Never write `useEffect` and `supabase` calls inside a UI component for core data. 
 **Pattern:** Create a hook (e.g., `useNotices.js`) that handles `loading`, `error`, and `data` states. The UI component imports this hook and simply renders the states.
 
-### 2. Multi-Account Authentication (`AuthContext.jsx`)
+### 2. Multi-Account Authentication & Auto-Healing (`AuthContext.jsx`)
 `AuthContext` natively supports **Multi-Account Session Pooling**. 
 - Valid login sessions (including `access_token` and profile data) are intercepted and stored in the `campusboard-accounts` array inside `localStorage`.
 - The `switchAccount(userId)` method instantly injects a saved token back into `supabase.auth.setSession()`, allowing instant hot-swapping between accounts without page reloads.
-- **Auto-Healer:** If a user creates an account but `user_metadata.full_name` is missing, `AuthContext` intelligently extracts the prefix from their email address (`user.email.split('@')[0]`) to avoid ugly blank strings.
+- **Robust Auto-Healer:** If a user creates an account but their `profiles` row isn't populated or defaults to 'Campus Member', `AuthContext` intelligently intercepts the profile on login, extracts their true name from `user_metadata`, and flawlessly overwrites the database placeholder behind the scenes.
 
 ### 3. Non-blocking Auth & Protected Route Pattern
-Use `ProtectedRoute.jsx` to wrap any route in `App.jsx` that requires authentication. It automatically checks the `AuthContext` and redirects to `/login` if no user exists.
+Use `ProtectedRoute.jsx` to wrap any route in `App.jsx` that requires authentication. It automatically checks the `AuthContext` and redirects to `/login` if no user exists. The main application layout (`AuthLayout.jsx`) wraps all authenticated routes to ensure the Navbar is globally persistent.
 
 ### 4. The Relational Realtime Subscription Pattern
-Use `useRealtimeNotices.js` to listen for database `INSERT` or `DELETE` payloads. When an `INSERT` occurs, perform an immediate secondary fetch to grab the joined relational data (like the author's Profile) before updating the React state, ensuring the feed stays live and fully attributed.
+- **Feed Sync:** Use `useRealtimeNotices.js` to listen for database `INSERT` or `DELETE` payloads. When an `INSERT` occurs, perform an immediate secondary fetch to grab the joined relational data (like the author's Profile) before updating the React state, ensuring the feed stays live and fully attributed.
+- **Micro-Sync:** Components like `NoticeCard.jsx` subscribe individually to `replies` changes (using a filtered channel) to keep their permanent reply counters perfectly in sync live on the dashboard, without needing to re-fetch the entire feed.
 
 ---
 
