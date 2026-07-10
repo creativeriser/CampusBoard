@@ -76,7 +76,7 @@ export default function AvatarUpload({ userId, currentUrl, onUploaded }) {
         className="hidden" 
       />
       
-      <p className="mt-3 text-xs text-ink-500 font-medium">Click to upload photo</p>
+      <p className="mt-3 text-xs text-ink-400 font-medium">Click to upload photo</p>
     </div>
   )
 }
