@@ -94,7 +94,7 @@ export default function Profile() {
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="rounded-2xl border border-white/10 dark:border-white/5 bg-white/40 dark:bg-black/20 backdrop-blur-xl shadow-sm p-5 md:p-6 relative overflow-hidden"
+            className="glass-panel rounded-2xl p-5 md:p-6 relative overflow-hidden"
           >
             <div className="absolute inset-0 bg-gradient-to-b from-white/40 to-transparent dark:from-white/5 dark:to-transparent pointer-events-none" />
             
@@ -116,7 +116,7 @@ export default function Profile() {
                   </div>
                 </div>
 
-                <div className="h-[1px] w-full bg-border/40 dark:bg-white/5" />
+                <div className="h-[1px] w-full bg-border/50" />
 
                 <div className="flex flex-col md:flex-row md:items-center py-4">
                   <div className="w-48 mb-2 md:mb-0 shrink-0">
@@ -131,9 +131,9 @@ export default function Profile() {
                   />
                 </div>
 
-                <div className="h-[1px] w-full bg-border/40 dark:bg-white/5" />
+                <div className="h-[1px] w-full bg-border/50" />
 
-                <div className="flex flex-col md:flex-row md:items-center py-4 focus-within:bg-black/[0.02] dark:focus-within:bg-white/[0.02] transition-colors rounded-lg -mx-4 px-4">
+                <div className="flex flex-col md:flex-row md:items-center py-4 focus-within:bg-black/[0.03] dark:focus-within:bg-white/[0.03] hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-colors rounded-lg -mx-4 px-4">
                   <div className="w-48 mb-2 md:mb-0 shrink-0">
                     <label className="text-sm font-medium text-ink-700">Full Name</label>
                   </div>
@@ -146,9 +146,9 @@ export default function Profile() {
                   />
                 </div>
 
-                <div className="h-[1px] w-full bg-border/40 dark:bg-white/5" />
+                <div className="h-[1px] w-full bg-border/50" />
 
-                <div className="flex flex-col md:flex-row py-4 focus-within:bg-black/[0.02] dark:focus-within:bg-white/[0.02] transition-colors rounded-lg -mx-4 px-4">
+                <div className="flex flex-col md:flex-row py-4 focus-within:bg-black/[0.03] dark:focus-within:bg-white/[0.03] hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-colors rounded-lg -mx-4 px-4">
                   <div className="w-48 mb-2 md:mb-0 shrink-0 pt-1">
                     <label className="text-sm font-medium text-ink-700">Bio</label>
                     <p className="text-[10px] text-ink-600 mt-0.5">Visible on your posts</p>
@@ -162,7 +162,7 @@ export default function Profile() {
                   />
                 </div>
                 
-                <div className="h-[1px] w-full bg-border/40 dark:bg-white/5 mb-6" />
+                <div className="h-[1px] w-full bg-border/50 mb-6" />
 
                 <div className="flex justify-end">
                   <Button type="submit" variant="brand" disabled={saving || loading} className="rounded-full px-6">
