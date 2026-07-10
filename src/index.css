@@ -95,3 +95,17 @@
     border-radius: inherit;
   }
 }
+
+@layer components {
+  .glass-panel {
+    @apply bg-white/40 dark:bg-black/20 backdrop-blur-xl border border-white/10 dark:border-white/5 shadow-sm;
+  }
+  
+  .glass-dropdown {
+    @apply glass-panel shadow-xl;
+  }
+
+  .list-item-hover {
+    @apply hover:bg-black/[0.03] dark:hover:bg-white/[0.03] active:scale-95 transition-all duration-150;
+  }
+}
