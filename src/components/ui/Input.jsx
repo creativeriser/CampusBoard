@@ -14,7 +14,7 @@ export const Input = forwardRef(function Input({ className, label, id, ...props 
         ref={ref}
         id={id}
         className={cn(
-          'h-10 rounded border border-border/60 dark:border-white/10 bg-white/50 dark:bg-white/5 backdrop-blur-md px-3 text-[14px] text-ink-900 placeholder:text-ink-400 dark:placeholder:text-ink-600 shadow-sm',
+          'h-10 rounded border border-border/60 dark:border-white/10 bg-white/50 dark:bg-white/5 backdrop-blur-md px-3 text-[14px] text-ink-900 placeholder:text-ink-400 shadow-sm',
           'transition-all outline-none focus-visible:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/30 focus-visible:ring-offset-0',
           'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-surface/50',
           className
@@ -37,7 +37,7 @@ export const Textarea = forwardRef(function Textarea({ className, label, id, ...
         ref={ref}
         id={id}
         className={cn(
-          'rounded border border-border/60 dark:border-white/10 bg-white/50 dark:bg-white/5 backdrop-blur-md px-3 py-2 text-[14px] text-ink-900 placeholder:text-ink-400 dark:placeholder:text-ink-600 shadow-sm',
+          'rounded border border-border/60 dark:border-white/10 bg-white/50 dark:bg-white/5 backdrop-blur-md px-3 py-2 text-[14px] text-ink-900 placeholder:text-ink-400 shadow-sm',
           'transition-all outline-none focus-visible:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/30 focus-visible:ring-offset-0 resize-none',
           'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-surface/50',
           className
