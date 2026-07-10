@@ -1,18 +1,55 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { formatDate } from '../utils/formatDate'
 import { Trash2, MessageSquare, Clock, Pin, AlertCircle } from 'lucide-react'
 import ReplyList from './ReplyList'
 import RoleBadge from './RoleBadge'
 import { Badge } from './ui/Badge'
+import { supabase } from '../supabaseClient'
 
 export default function NoticeCard({ notice, currentUserId, currentUserRole, onDelete }) {
   const [showReplies, setShowReplies] = useState(false)
+  const [replyCount, setReplyCount] = useState(0)
   const isOwner = notice.user_id === currentUserId
   const isAdmin = currentUserRole === 'admin'
   const canDelete = isOwner || isAdmin
 
+  // Fetch initial reply count for the permanent button display
+  useEffect(() => {
+    async function fetchReplyCount() {
+      const { count } = await supabase
+        .from('replies')
+        .select('*', { count: 'exact', head: true })
+        .eq('notice_id', notice.id)
+      
+      if (count !== null) {
+        setReplyCount(count)
+      }
+    }
+    fetchReplyCount()
+  }, [notice.id])
+
+  // Listen for realtime reply updates to keep count accurate
+  useEffect(() => {
+    const channel = supabase.channel(`notice-${notice.id}-replies-count`)
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'replies', filter: `notice_id=eq.${notice.id}` },
+        () => setReplyCount(prev => prev + 1)
+      )
+      .on(
+        'postgres_changes',
+        { event: 'DELETE', schema: 'public', table: 'replies', filter: `notice_id=eq.${notice.id}` },
+        () => setReplyCount(prev => Math.max(0, prev - 1))
+      )
+      .subscribe()
+      
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [notice.id])
+
   return (
-    <div className={`group flex flex-col rounded-2xl border border-white/10 dark:border-white/5 bg-white/40 dark:bg-black/20 hover:bg-white/50 dark:hover:bg-black/30 backdrop-blur-xl p-5 md:p-6 shadow-sm transition-all hover:shadow-md relative overflow-hidden ${notice.is_pinned ? 'ring-1 ring-brand-500/30' : ''}`}>
+    <div className={`glass-panel group flex flex-col rounded-2xl hover:bg-white/50 dark:hover:bg-black/30 p-5 md:p-6 transition-all hover:shadow-md relative overflow-hidden ${notice.is_pinned ? 'ring-1 ring-brand-500/30' : ''}`}>
       <div className="absolute inset-0 bg-gradient-to-b from-white/40 to-transparent dark:from-white/5 dark:to-transparent pointer-events-none" />
       
       {/* Header: Author & Actions */}
@@ -78,14 +115,18 @@ export default function NoticeCard({ notice, currentUserId, currentUserRole, onD
           </p>
         )}
         
-        {/* Footer: Actions */}
-        <div className="mt-4 flex items-center gap-4 text-xs font-medium text-ink-600 opacity-0 transition-opacity group-hover:opacity-100">
+        {/* Footer: Actions (Permanently Visible) */}
+        <div className="mt-4 flex items-center gap-4 text-xs font-medium text-ink-600 transition-opacity">
           <button 
             onClick={() => setShowReplies(!showReplies)}
-            className={`flex items-center gap-1.5 transition-colors ${showReplies ? 'text-brand-600 dark:text-brand-400' : 'hover:text-brand-600 dark:hover:text-brand-400'}`}
+            className={`flex items-center gap-1.5 transition-colors list-item-hover p-1.5 -ml-1.5 rounded-lg ${showReplies ? 'text-brand-600 dark:text-brand-400' : 'hover:text-brand-600 dark:hover:text-brand-400'}`}
           >
             <MessageSquare size={14} />
-            {showReplies ? 'Hide Discussion' : 'Reply'}
+            {replyCount > 0 ? (
+              <span>{replyCount} {replyCount === 1 ? 'Reply' : 'Replies'}</span>
+            ) : (
+              <span>Reply</span>
+            )}
           </button>
         </div>
 
