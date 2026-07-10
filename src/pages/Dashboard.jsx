@@ -1,14 +1,14 @@
 import { useAuth } from '../context/AuthContext'
 import { useNotices } from '../hooks/useNotices'
 import { useRealtimeNotices } from '../hooks/useRealtimeNotices'
-import { motion } from 'framer-motion'
-import { Loader2 } from 'lucide-react'
-import Navbar from '../components/Navbar'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Loader2, Inbox } from 'lucide-react'
 import NoticeForm from '../components/NoticeForm'
 import NoticeCard from '../components/NoticeCard'
+import RoleBadge from '../components/RoleBadge'
 
 export default function Dashboard() {
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const { notices, setNotices, loading, addNotice, deleteNotice } = useNotices()
 
   // keeps `notices` state live-synced with DB changes from any user
@@ -21,43 +21,43 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-surface transition-colors duration-300 relative">
-      
-      {/* Global Unified Background Elements */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute inset-0 flex items-center justify-center lg:justify-end lg:pr-[12%]">
-          <div className="h-[500px] w-[500px] rounded-full bg-brand-500/15 dark:bg-brand-500/20 blur-[120px]" />
-        </div>
-        
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA0MCAwIEwgMCAwIDAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgwLCAwLCAwLCAwLjAyKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] dark:hidden" />
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA0MCAwIEwgMCAwIDAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsIDI1NSwgMjU1LCAwLjA0KSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] hidden dark:block" />
-      </div>
-
-      <Navbar />
-
-      <main className="relative z-10 flex-1 w-full max-w-3xl mx-auto px-4 py-8 md:px-8">
+    <>
         <div className="mb-8">
-          <h1 className="font-display text-2xl md:text-3xl font-semibold text-ink-900 tracking-tight">
+          <h1 className="font-sans text-2xl md:text-3xl font-bold text-ink-900 tracking-tight">
             Notice Board
           </h1>
-          <p className="text-ink-600 mt-1">Stay updated with the latest campus announcements.</p>
+          <p className="text-ink-600 mt-1 text-sm font-medium">Stay updated with the latest campus announcements.</p>
         </div>
 
         <NoticeForm onAdd={addNotice} userId={user.id} />
 
         <div className="mt-8">
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-12 text-ink-600">
-              <Loader2 className="h-8 w-8 animate-spin mb-4 text-brand-500" />
-              <p>Loading notices...</p>
+            <div className="flex flex-col gap-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="rounded-2xl border border-white/5 bg-white/20 dark:bg-black/10 backdrop-blur-xl p-5 md:p-6 shadow-sm animate-pulse flex flex-col gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 rounded-full bg-black/5 dark:bg-white/5"></div>
+                    <div className="flex flex-col gap-2">
+                      <div className="h-3 w-24 bg-black/5 dark:bg-white/5 rounded"></div>
+                      <div className="h-2 w-16 bg-black/5 dark:bg-white/5 rounded"></div>
+                    </div>
+                  </div>
+                  <div className="pl-11 flex flex-col gap-3">
+                    <div className="h-5 w-3/4 bg-black/5 dark:bg-white/5 rounded"></div>
+                    <div className="h-3 w-full bg-black/5 dark:bg-white/5 rounded"></div>
+                    <div className="h-3 w-5/6 bg-black/5 dark:bg-white/5 rounded"></div>
+                  </div>
+                </div>
+              ))}
             </div>
           ) : notices.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 text-center">
-              <div className="h-14 w-14 rounded-full bg-ink-900/5 dark:bg-white/5 flex items-center justify-center mb-4 shadow-sm border border-white/10">
-                <span className="text-2xl opacity-80">📝</span>
+            <div className="flex flex-col items-center justify-center py-24 text-center">
+              <div className="h-16 w-16 rounded-full bg-ink-900/5 dark:bg-white/5 flex items-center justify-center mb-5 shadow-sm border border-white/10">
+                <Inbox size={28} className="text-ink-400" strokeWidth={1.5} />
               </div>
-              <h3 className="text-xl font-display font-medium text-ink-900 mb-1">No notices yet</h3>
-              <p className="text-ink-500">Be the first to post an announcement!</p>
+              <h3 className="text-lg font-sans font-semibold text-ink-900 mb-1.5 tracking-tight">No notices yet</h3>
+              <p className="text-ink-600 text-sm max-w-[250px]">When someone posts an announcement, it will appear here.</p>
             </div>
           ) : (
             <motion.div 
@@ -70,13 +70,13 @@ export default function Dashboard() {
                   key={notice.id}
                   notice={notice}
                   currentUserId={user.id}
+                  currentUserRole={profile?.role}
                   onDelete={handleDelete}
                 />
               ))}
             </motion.div>
           )}
         </div>
-      </main>
-    </div>
+    </>
   )
 }
