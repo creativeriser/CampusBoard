@@ -7,7 +7,7 @@ import RoleBadge from './RoleBadge'
 import { toast } from 'sonner'
 
 export default function AccountSwitcher() {
-  const { user, profile, savedAccounts, switchAccount, signOutAll } = useAuth()
+  const { user, profile, savedAccounts, switchAccount, signOut, signOutAll, removeAccount } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
   const [isSwitching, setIsSwitching] = useState(null)
   const popoverRef = useRef(null)
@@ -48,6 +48,29 @@ export default function AccountSwitcher() {
     } else {
       setIsOpen(false)
       toast.success('Account switched')
+    }
+  }
+
+  const handleSignOutActive = async () => {
+    if (otherAccounts.length > 0) {
+      const nextAcc = otherAccounts[0]
+      const currentId = user.id
+      
+      setIsSwitching(nextAcc.id)
+      const { error } = await switchAccount(nextAcc.id)
+      setIsSwitching(null)
+      
+      if (!error) {
+        removeAccount(currentId)
+        setIsOpen(false)
+        toast.success(`Signed out. Switched to ${nextAcc.full_name}`)
+      } else {
+        await signOut()
+        navigate('/login')
+      }
+    } else {
+      await signOut()
+      navigate('/login')
     }
   }
 
@@ -140,12 +163,29 @@ export default function AccountSwitcher() {
               >
                 <Plus size={16} /> Add another account
               </Link>
-              <button
-                onClick={handleSignOutAll}
-                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 active:scale-95 transition-all duration-150"
-              >
-                <LogOut size={16} /> Sign out of all accounts
-              </button>
+              {otherAccounts.length > 0 ? (
+                <>
+                  <button
+                    onClick={handleSignOutActive}
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-ink-700 list-item-hover hover:text-ink-900"
+                  >
+                    <LogOut size={16} /> Sign out
+                  </button>
+                  <button
+                    onClick={handleSignOutAll}
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 active:scale-95 transition-all duration-150"
+                  >
+                    <LogOut size={16} /> Sign out of all accounts
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={handleSignOutActive}
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 active:scale-95 transition-all duration-150"
+                >
+                  <LogOut size={16} /> Sign out
+                </button>
+              )}
             </div>
           </motion.div>
         )}

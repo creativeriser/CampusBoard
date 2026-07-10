@@ -152,6 +152,10 @@ export function AuthProvider({ children }) {
     return supabase.auth.signOut()
   }
 
+  const removeAccount = (accountId) => {
+    setSavedAccounts(prev => prev.filter(acc => acc.id !== accountId))
+  }
+
   const value = {
     session,
     user: session?.user ?? null,
@@ -162,7 +166,8 @@ export function AuthProvider({ children }) {
     signIn,
     signOut: signOutActive,
     signOutAll,
-    switchAccount
+    switchAccount,
+    removeAccount
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
