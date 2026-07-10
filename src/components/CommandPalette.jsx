@@ -92,7 +92,7 @@ export default function CommandPalette() {
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[15vh]">
+        <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[15vh] px-4">
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -105,9 +105,9 @@ export default function CommandPalette() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -10 }}
             transition={{ duration: 0.15 }}
-            className="relative z-[101] w-full max-w-lg overflow-hidden rounded-2xl border border-white/10 dark:border-white/5 bg-white/70 dark:bg-black/40 backdrop-blur-2xl shadow-2xl"
+            className="relative z-[101] w-full max-w-lg overflow-hidden rounded-2xl glass-dropdown"
           >
-            <div className="flex items-center gap-3 border-b border-border/40 dark:border-white/5 px-4 py-3">
+            <div className="flex items-center gap-3 border-b border-border/50 dark:border-white/5 px-4 py-3">
               <Search size={18} className="text-ink-400" />
               <input
                 type="text"
@@ -138,14 +138,20 @@ export default function CommandPalette() {
                       <button
                         key={res.id}
                         onClick={() => handleAction({ type: 'navigate', path: '/dashboard' })}
-                        className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-ink-700 transition-colors hover:bg-black/[0.03] dark:hover:bg-white/[0.03] hover:text-ink-900"
+                        className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-ink-700 list-item-hover hover:text-ink-900"
                       >
                         <ArrowRight size={16} className="text-ink-400" />
                         {res.title}
                       </button>
                     ))
                   ) : (
-                    <div className="px-3 py-2 text-sm text-ink-500">No notices found.</div>
+                    <div className="flex flex-col items-center justify-center py-6 px-3 text-center">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-ink-900/5 dark:bg-white/5 text-ink-400 mb-2">
+                        <Search size={20} />
+                      </div>
+                      <span className="text-sm font-medium text-ink-900">No notices found</span>
+                      <span className="text-xs text-ink-500">Try a different search term</span>
+                    </div>
                   )}
                 </div>
               )}
@@ -160,7 +166,7 @@ export default function CommandPalette() {
                     <button
                       key={action.id}
                       onClick={() => handleAction(action)}
-                      className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-ink-700 transition-colors hover:bg-black/[0.03] dark:hover:bg-white/[0.03] hover:text-ink-900"
+                      className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-ink-700 list-item-hover hover:text-ink-900"
                     >
                       <div className="text-ink-400">{action.icon}</div>
                       {action.title}
@@ -179,7 +185,7 @@ export default function CommandPalette() {
                     <button
                       key={acc.id}
                       onClick={() => handleAction({ type: 'switch_account', id: acc.id })}
-                      className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-ink-700 transition-colors hover:bg-black/[0.03] dark:hover:bg-white/[0.03] hover:text-ink-900"
+                      className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-ink-700 list-item-hover hover:text-ink-900"
                     >
                       <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-ink-900/5 dark:bg-white/10 text-[10px] font-bold text-ink-700 overflow-hidden">
                         {acc.avatar_url ? (
