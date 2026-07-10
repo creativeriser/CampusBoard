@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useReplies } from '../hooks/useReplies'
 import { formatDate } from '../utils/formatDate'
-import { Trash2, Send, Loader2 } from 'lucide-react'
+import { Trash2, Send, Loader2, MessageSquare } from 'lucide-react'
 import { Button } from './ui/Button'
 import { toast } from 'sonner'
 import RoleBadge from './RoleBadge'
@@ -31,7 +31,7 @@ export default function ReplyList({ noticeId, currentUserId, currentUserRole }) 
   }
 
   return (
-    <div className="mt-4 pt-4 border-t border-border/40 dark:border-white/5 flex flex-col gap-4">
+    <div className="mt-4 pt-4 border-t border-border/50 flex flex-col gap-4">
       {loading ? (
         <div className="text-xs text-ink-400 animate-pulse">Loading replies...</div>
       ) : replies.length > 0 ? (
@@ -52,7 +52,7 @@ export default function ReplyList({ noticeId, currentUserId, currentUserRole }) 
                     </div>
                   )}
                 </div>
-                <div className="flex-1 bg-black/[0.03] dark:bg-white/[0.03] p-3 rounded-2xl rounded-tl-none border border-black/5 dark:border-white/5">
+                <div className="flex-1 bg-black/[0.03] dark:bg-white/[0.03] p-3 rounded-2xl rounded-tl-none border border-border/50">
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-semibold text-ink-900 text-[13px]">
                       {reply.profiles?.full_name || 'Campus Member'}
@@ -78,7 +78,7 @@ export default function ReplyList({ noticeId, currentUserId, currentUserRole }) 
           })}
         </div>
       ) : (
-        <div className="text-xs text-ink-400 text-center py-2 bg-black/[0.02] dark:bg-white/[0.02] rounded-xl border border-black/5 dark:border-white/5">No replies yet. Be the first to start the discussion!</div>
+        <div className="text-xs text-ink-400 text-center py-2 bg-black/[0.02] dark:bg-white/[0.02] rounded-xl border border-border/50">No replies yet. Be the first to start the discussion!</div>
       )}
 
       <form onSubmit={handleSubmit} className="flex gap-2 relative mt-2">
