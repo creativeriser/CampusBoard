@@ -77,10 +77,10 @@ export default function AccountSwitcher() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 top-full mt-2 w-72 rounded-2xl border border-white/10 dark:border-white/5 bg-white/70 dark:bg-black/40 backdrop-blur-2xl shadow-xl overflow-hidden z-50 origin-top-right"
+            className="absolute right-0 top-full mt-2 w-72 rounded-2xl glass-dropdown z-50 origin-top-right"
           >
             {/* Active Account */}
-            <div className="p-4 bg-white/50 dark:bg-white/5 flex flex-col items-center text-center">
+            <div className="p-4 bg-white/50 dark:bg-white/10 flex flex-col items-center text-center">
               <div className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-400 overflow-hidden mb-3">
                 {currentAccount.avatar_url ? (
                   <img src={currentAccount.avatar_url} alt="Avatar" className="h-full w-full object-cover" />
@@ -98,21 +98,21 @@ export default function AccountSwitcher() {
               <Link 
                 to="/profile" 
                 onClick={() => setIsOpen(false)}
-                className="mt-4 flex items-center justify-center gap-2 w-full rounded-lg border border-border/50 bg-white/50 dark:bg-black/20 py-2 text-xs font-medium text-ink-700 hover:bg-black/[0.03] dark:hover:bg-white/[0.05] transition-colors"
+                className="mt-4 flex items-center justify-center gap-2 w-full rounded-lg border border-border/50 bg-white/50 dark:bg-black/20 py-2 text-xs font-medium text-ink-700 list-item-hover"
               >
-                <Settings size={14} /> Manage Profile
+                <Settings size={16} /> Manage Profile
               </Link>
             </div>
 
             {/* Other Accounts */}
             {otherAccounts.length > 0 && (
-              <div className="border-t border-border/40 dark:border-white/5 py-1">
+              <div className="border-t border-border/50 dark:border-white/5 py-1">
                 {otherAccounts.map(acc => (
                   <button
                     key={acc.id}
                     onClick={() => handleSwitch(acc.id)}
                     disabled={isSwitching !== null}
-                    className="w-full flex items-center gap-3 px-4 py-2 hover:bg-black/[0.03] dark:hover:bg-white/[0.03] transition-colors text-left"
+                    className="w-full flex items-center gap-3 px-4 py-2 text-left list-item-hover"
                   >
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ink-900/5 dark:bg-white/10 text-ink-700 overflow-hidden">
                       {acc.avatar_url ? (
@@ -132,17 +132,17 @@ export default function AccountSwitcher() {
             )}
 
             {/* Actions */}
-            <div className="border-t border-border/40 dark:border-white/5 p-2 flex flex-col gap-1">
+            <div className="border-t border-border/50 dark:border-white/5 p-2 flex flex-col gap-1">
               <Link
                 to="/login"
                 onClick={() => setIsOpen(false)}
-                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-ink-700 hover:bg-black/[0.03] dark:hover:bg-white/[0.03] hover:text-ink-900 transition-colors"
+                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-ink-700 list-item-hover hover:text-ink-900"
               >
                 <Plus size={16} /> Add another account
               </Link>
               <button
                 onClick={handleSignOutAll}
-                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 active:scale-95 transition-all duration-150"
               >
                 <LogOut size={16} /> Sign out of all accounts
               </button>
