@@ -10,10 +10,15 @@ export function useNotices() {
     setLoading(true)
     const { data, error } = await supabase
       .from('notices')
-      .select('*')
+      .select('*, profiles(full_name, avatar_url, role)')
+      .order('is_pinned', { ascending: false })
       .order('created_at', { ascending: false })
 
-    if (!error) setNotices(data)
+    if (error) {
+      console.error("Error fetching notices:", error)
+    } else {
+      setNotices(data)
+    }
     setLoading(false)
   }, [])
 
@@ -21,10 +26,10 @@ export function useNotices() {
     fetchNotices()
   }, [fetchNotices])
 
-  const addNotice = async (title, content, userId) => {
+  const addNotice = async (noticeData) => {
     const { error } = await supabase
       .from('notices')
-      .insert({ title, content, user_id: userId })
+      .insert(noticeData)
     return { error }
   }
 
