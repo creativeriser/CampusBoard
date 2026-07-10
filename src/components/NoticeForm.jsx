@@ -47,7 +47,7 @@ export default function NoticeForm({ onAdd, userId }) {
   }
 
   return (
-    <div className="rounded-2xl border border-white/10 dark:border-white/5 bg-white/40 dark:bg-black/20 backdrop-blur-xl shadow-sm transition-all focus-within:ring-1 focus-within:ring-brand-500/50 overflow-hidden relative">
+    <div className="glass-panel rounded-2xl transition-all focus-within:ring-1 focus-within:ring-brand-500/50 overflow-hidden relative">
       <div className="absolute inset-0 bg-gradient-to-b from-white/40 to-transparent dark:from-white/5 dark:to-transparent pointer-events-none" />
       <form onSubmit={handleSubmit} className="flex flex-col relative z-10">
         <input
@@ -59,7 +59,7 @@ export default function NoticeForm({ onAdd, userId }) {
           required
           className="w-full bg-transparent px-5 py-4 text-lg font-medium text-ink-900 placeholder:text-ink-400 outline-none"
         />
-        <div className="h-[1px] w-full bg-border/40 dark:bg-white/5" />
+        <div className="h-[1px] w-full bg-border/50" />
         <textarea
           placeholder="Add more details... (optional)"
           value={content}
@@ -70,7 +70,7 @@ export default function NoticeForm({ onAdd, userId }) {
         />
         
         {showOptions && (
-          <div className="px-5 py-4 bg-black/[0.02] dark:bg-white/[0.02] border-t border-border/40 dark:border-white/5 flex flex-col gap-4">
+          <div className="px-5 py-4 bg-black/[0.02] dark:bg-white/[0.02] border-t border-border/50 flex flex-col gap-4">
             <div className="flex gap-4">
               <label className="flex items-center gap-2 text-sm font-medium text-ink-700 cursor-pointer">
                 <input 
@@ -96,7 +96,7 @@ export default function NoticeForm({ onAdd, userId }) {
           </div>
         )}
 
-        <div className="flex items-center justify-between px-5 pb-4 pt-2 border-t border-border/40 dark:border-white/5">
+        <div className="flex items-center justify-between px-5 pb-4 pt-2 border-t border-border/50">
           <button 
             type="button"
             onClick={() => setShowOptions(!showOptions)}
