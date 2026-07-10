@@ -6,8 +6,8 @@ import { Button } from '../components/ui/Button'
 import { Loader2, Save } from 'lucide-react'
 import { toast } from 'sonner'
 import { motion } from 'framer-motion'
-import Navbar from '../components/Navbar'
 import AvatarUpload from '../components/AvatarUpload'
+import RoleBadge from '../components/RoleBadge'
 
 export default function Profile() {
   const { user } = useAuth()
@@ -40,7 +40,7 @@ export default function Profile() {
 
       const { data: created, error: createError } = await supabase
         .from('profiles')
-        .insert({ id: user.id, full_name: '' })
+        .insert({ id: user.id, full_name: user.user_metadata?.full_name || 'Campus Member', role: 'member' })
         .select()
         .single()
 
@@ -75,25 +75,13 @@ export default function Profile() {
   }
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-surface transition-colors duration-300 relative">
-      
-      {/* Global Unified Background Elements */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute inset-0 flex items-center justify-center lg:justify-end lg:pr-[12%]">
-          <div className="h-[500px] w-[500px] rounded-full bg-brand-500/15 dark:bg-brand-500/20 blur-[120px]" />
-        </div>
-        
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA0MCAwIEwgMCAwIDAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgwLCAwLCAwLCAwLjAyKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] dark:hidden" />
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA0MCAwIEwgMCAwIDAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsIDI1NSwgMjU1LCAwLjA0KSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] hidden dark:block" />
-      </div>
-
-      <Navbar />
-
-      <main className="relative z-10 flex-1 w-full max-w-2xl mx-auto px-4 py-8 md:px-8">
+    <>
         <div className="mb-8">
-          <h1 className="font-display text-2xl md:text-3xl font-semibold text-ink-900 tracking-tight">
-            My Profile
-          </h1>
+          <div className="flex items-center gap-3">
+            <h1 className="font-sans text-2xl md:text-3xl font-bold text-ink-900 tracking-tight">
+              My Profile
+            </h1>
+          </div>
           <p className="text-ink-600 mt-1">Manage your personal information and preferences.</p>
         </div>
 
@@ -106,7 +94,7 @@ export default function Profile() {
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="rounded-2xl border border-white/10 dark:border-white/5 bg-white/40 dark:bg-black/20 backdrop-blur-xl shadow-sm p-6 md:p-8 relative overflow-hidden"
+            className="rounded-2xl border border-white/10 dark:border-white/5 bg-white/40 dark:bg-black/20 backdrop-blur-xl shadow-sm p-5 md:p-6 relative overflow-hidden"
           >
             <div className="absolute inset-0 bg-gradient-to-b from-white/40 to-transparent dark:from-white/5 dark:to-transparent pointer-events-none" />
             
@@ -117,41 +105,67 @@ export default function Profile() {
                 onUploaded={(url) => setProfile((prev) => ({ ...prev, avatar_url: url }))}
               />
 
-              <form onSubmit={handleSave} className="mt-6 flex flex-col gap-5">
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-ink-900">Email Address</label>
-                  <Input 
+              <form onSubmit={handleSave} className="mt-10 flex flex-col relative z-10">
+                <div className="flex flex-col md:flex-row md:items-center py-4 rounded-lg -mx-4 px-4">
+                  <div className="w-48 mb-2 md:mb-0 shrink-0">
+                    <label className="text-sm font-medium text-ink-700">Account Role</label>
+                    <p className="text-[10px] text-ink-600 mt-0.5">Assigned by admin</p>
+                  </div>
+                  <div className="flex-1 w-full flex items-center">
+                    <RoleBadge role={profile?.role} />
+                  </div>
+                </div>
+
+                <div className="h-[1px] w-full bg-border/40 dark:bg-white/5" />
+
+                <div className="flex flex-col md:flex-row md:items-center py-4">
+                  <div className="w-48 mb-2 md:mb-0 shrink-0">
+                    <label className="text-sm font-medium text-ink-700">Email Address</label>
+                    <p className="text-[10px] text-ink-600 mt-0.5">Cannot be changed</p>
+                  </div>
+                  <input 
                     type="text" 
                     value={user.email} 
                     disabled 
-                    className="opacity-70 cursor-not-allowed"
+                    className="flex-1 w-full bg-transparent text-sm font-medium text-ink-600 outline-none cursor-not-allowed"
                   />
-                  <p className="text-[11px] text-ink-500">Your email address cannot be changed.</p>
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-ink-900">Full Name</label>
-                  <Input
+                <div className="h-[1px] w-full bg-border/40 dark:bg-white/5" />
+
+                <div className="flex flex-col md:flex-row md:items-center py-4 focus-within:bg-black/[0.02] dark:focus-within:bg-white/[0.02] transition-colors rounded-lg -mx-4 px-4">
+                  <div className="w-48 mb-2 md:mb-0 shrink-0">
+                    <label className="text-sm font-medium text-ink-700">Full Name</label>
+                  </div>
+                  <input
                     type="text"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="E.g. Jane Doe"
+                    className="flex-1 w-full bg-transparent text-sm font-medium text-ink-900 placeholder:text-ink-400 outline-none"
                   />
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-ink-900">Bio</label>
-                  <Textarea
-                    rows={4}
+                <div className="h-[1px] w-full bg-border/40 dark:bg-white/5" />
+
+                <div className="flex flex-col md:flex-row py-4 focus-within:bg-black/[0.02] dark:focus-within:bg-white/[0.02] transition-colors rounded-lg -mx-4 px-4">
+                  <div className="w-48 mb-2 md:mb-0 shrink-0 pt-1">
+                    <label className="text-sm font-medium text-ink-700">Bio</label>
+                    <p className="text-[10px] text-ink-600 mt-0.5">Visible on your posts</p>
+                  </div>
+                  <textarea
+                    rows={3}
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
                     placeholder="Tell us a little about yourself..."
-                    className="resize-none"
+                    className="flex-1 w-full bg-transparent text-sm text-ink-900 placeholder:text-ink-400 outline-none resize-none pt-1"
                   />
                 </div>
+                
+                <div className="h-[1px] w-full bg-border/40 dark:bg-white/5 mb-6" />
 
-                <div className="mt-4 flex justify-end">
-                  <Button type="submit" disabled={saving || loading}>
+                <div className="flex justify-end">
+                  <Button type="submit" variant="brand" disabled={saving || loading} className="rounded-full px-6">
                     {saving ? (
                       <>Saving <Loader2 size={16} className="ml-2 animate-spin" /></>
                     ) : (
@@ -163,7 +177,6 @@ export default function Profile() {
             </div>
           </motion.div>
         )}
-      </main>
-    </div>
+    </>
   )
 }
