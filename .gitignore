@@ -13,7 +13,8 @@ dist-ssr
 *.local
 
 .env
-
+cat > .gitignore << 'EOF'
+EOF
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
